@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>End Term Project-UserInfo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body onload="output()">
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <form class="form-inline" onsubmit="displayBySearch()">
+    <input class="form-control mr-sm-2" type="text" id="search" placeholder="Search">
+    <button class="btn btn-success" type="submit">Search</button>
+  </form>
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" href="firstPage.html"><button type="button" class="btn btn-primary">Add User</button></a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="secondPage.html"><button type="button" class="btn btn-primary">See Users</button></a>
+    </li>
+  </ul>
+</nav>
+
+<div class="table-responsive-md" >
+  <table class="table table-hover table-striped">
+    <thead class="thead-dark">
+    <tr>
+      <th>Firstname</th>
+      <th>Age</th>
+      <th>Email ID</th>
+      <th>Address</th>
+      <th>Phone Number</th>
+      <th></th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody id="output">
+    </tbody>
+  </table>
+</div>
+<script>
+  function output()
+  {
+    var xhttp1 = new XMLHttpRequest();
+    xhttp1.open("GET", "http://localhost:8080/api/users", true);
+    xhttp1.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var list=JSON.parse(this.responseText);
+        var temp="";
+        for(var i=0;i<list.length;i++)
+        {
+          temp+="<tr>"+"<td><input type='text'  class='form-control' id='name"+list[i].id+"' placeholder='Enter name...' value='"+list[i].name+"'></td>"+
+                  "<td><input type='number' class='form-control' id='age"+list[i].id+"' placeholder='Enter age...'  value='"+list[i].age+"'></td>"+
+                  "<td><input type='email' class='form-control' id='email"+list[i].id+"' placeholder='Enter email...' value='"+list[i].emailId+"'></td>"+
+                  "<td><input type='text' class='form-control' id='address"+list[i].id+"' placeholder='Enter address...' value='"+list[i].address+"'></td>"+
+                  "<td><input type='number' class='form-control' id='phoneNumber"+list[i].id+"' placeholder='Enter phone number...' value='"+list[i].phoneNumber+"'></td>"+
+                  "<td><button class='btn btn-warning' onclick='editUser("+list[i].id+")'>Edit</Button></td>" +
+                  "<td><button class='btn btn-danger' onclick='deleteUser("+list[i].id+")'>Delete</Button></td>"+
+                  "</tr>";
+        }
+        document.getElementById("output").innerHTML+=temp;
+      }
+    };
+    xhttp1.send();
+  }
+  function deleteUser(id)
+  {
+    var url = "http://localhost:8080/api/users/"+id;
+    console.log(url);
+    var xhr = new XMLHttpRequest();
+    xhr.open("DELETE", url, true);
+    xhr.onload = function () {
+    }
+    xhr.send(null);
+    setTimeout(function(){ window.location.reload(); }, 400);
+  }
+  function editUser(id) {
+    var xhttp1 = new XMLHttpRequest();
+    var url = "http://localhost:8080/api/users/" + id;
+    console.log(url);
+    xhttp1.open("PUT", url, true);
+    xhttp1.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var list = JSON.parse(this.responseText);
+      }
+    }
+    var name = document.getElementById("name"+id).value;
+    var phoneNumber = document.getElementById("phoneNumber"+ id).value;
+    var email = document.getElementById("email"+id).value;
+    var age = document.getElementById('age' + id).value;
+    var address = document.getElementById('address' + id).value;
+    var atpos = email.indexOf("@");
+    var dotpos = email.lastIndexOf(".");
+    if (name == "" || phoneNumber == "" || email == "" || age == "" || address == "") {
+      alert("Enter your all details in the given fields");
+      return false;
+    } else if (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email.length) {
+      alert("Invalid Email Id")
+      return false;
+    } else if (phoneNumber.length !== 10) {
+      alert("Invalid Phone Number")
+      return false;
+    } else {
+      xhttp1.setRequestHeader("content-type","application/json");
+      xhttp1.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+
+        }
+      };
+      var json = {
+        "name": name,
+        "phoneNumber": phoneNumber,
+        "emailId": email,
+        "age": age,
+        "address": address
+      };
+      xhttp1.send(JSON.stringify(json));
+      alert("User Edited");
+    }
+  }
+  function displayBySearch()
+  {
+    //for stopping page from reloading
+    event.preventDefault();
+    var name=document.getElementById('search').value;
+    if(name!="")
+    {
+      output1(name);
+    }
+    else {
+      alert("!!! Enter Name To Search !!!");
+      output();
+    }
+  }
+  function output1(name)
+  {
+    var xhttp1 = new XMLHttpRequest();
+    xhttp1.open("GET", "http://localhost:8080/api/users", true);
+    xhttp1.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var list=JSON.parse(this.responseText);
+        var temp="";
+        var flag=0;
+        document.getElementById("output").innerHTML=temp;
+        for(var i=0;i<list.length;i++)
+        {
+          if(list[i].name.toUpperCase().includes(name.toUpperCase())) {
+            temp += "<tr>" + "<td><input type='text'  class='form-control' id='name" + list[i].id + "' placeholder='Enter name...' value='" + list[i].name + "'></td>" +
+                    "<td><input type='number' class='form-control' id='age" + list[i].id + "' placeholder='Enter age...'  value='" + list[i].age + "'></td>" +
+                    "<td><input type='email' class='form-control' id='email" + list[i].id + "' placeholder='Enter email...' value='" + list[i].emailId + "'></td>" +
+                    "<td><input type='text' class='form-control' id='address" + list[i].id + "' placeholder='Enter address...' value='" + list[i].address + "'></td>" +
+                    "<td><input type='number' class='form-control' id='phoneNumber" + list[i].id + "' placeholder='Enter phone number...' value='" + list[i].phoneNumber + "'></td>" +
+                    "<td><button class='btn btn-warning' onclick='editUser(" + list[i].id + ")'>Edit</Button></td>" +
+                    "<td><button class='btn btn-danger' onclick='deleteUser(" + list[i].id + ")'>Delete</Button></td>" +
+                    "</tr>";
+            flag=1;
+          }
+        }
+        if(flag==1)
+        document.getElementById("output").innerHTML+=temp;
+        else
+        {
+          alert("!!! Name Don't Exist !!!");
+          output();
+        }
+      }
+    };
+    xhttp1.send();
+  }
+</script>
+</body>
+</html>
