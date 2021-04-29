@@ -1,0 +1,6 @@
+com\exam\vinayEndTermProject\config\JpaConfiguration.class
+com\exam\vinayEndTermProject\model\User.class
+com\exam\vinayEndTermProject\controller\HomeController.class
+com\exam\vinayEndTermProject\repository\UserRepository.class
+com\exam\vinayEndTermProject\VinayEndTermProjectApplication.class
+com\exam\vinayEndTermProject\controller\UserController.class
